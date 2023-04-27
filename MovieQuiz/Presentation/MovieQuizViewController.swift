@@ -3,22 +3,6 @@ import UIKit
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - Lifecycle
     
-    @IBAction private func noButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        let givenAnswer = false
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-    }
-    
-    @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        let givenAnswer = true
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-    }
-    
     @IBOutlet private weak var imageView: UIImageView!
     
     @IBOutlet private weak var textLabel: UILabel!
@@ -30,9 +14,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var yesClickedButton: UIButton!
     
     private var currentQuestionIndex = 0
-    
     private var correctAnswers = 0
-    
     private let questionsAmount: Int = 10
     
     private var questionFactory: QuestionFactoryProtocol?
@@ -54,9 +36,22 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         alertPresenter = ResultAlertPresenter(viewController: self)
     }
     
+    @IBAction private func yesButtonClicked(_ sender: UIButton) {
+        guard let currentQuestion = currentQuestion else {
+            return
+        }
+        let givenAnswer = true
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+    }
     
     
-    
+    @IBAction private func noButtonClicked(_ sender: UIButton) {
+        guard let currentQuestion = currentQuestion else {
+            return
+        }
+        let givenAnswer = false
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+    }
     // MARK: - QuestionFactoryDelegate
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
@@ -83,26 +78,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
-    }
-    
-    private func show(quiz result: QuizResultsViewModel) {
-        let alert = UIAlertController(
-            title: result.title,
-            message: result.text,
-            preferredStyle: .alert
-        )
-        
-        let action = UIAlertAction(
-            title: result.buttonText,
-            style: .default
-        ) { [weak self] _ in
-            guard let self = self else {return}
-            self.currentQuestionIndex = 0
-            self.correctAnswers = 0
-            self.questionFactory?.requestNextQuestion()
-        }
-        alert.addAction(action)
-        self.present(alert, animated: true, completion: nil)
     }
     
     private func showNextQuestionOrResults() {
@@ -142,7 +117,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             imageView.layer.masksToBounds = true
             imageView.layer.borderWidth = 8
             imageView.layer.borderColor = UIColor.ypGreen.cgColor
-            
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
                 guard let self = self else { return }
                 self.imageView.layer.borderWidth = 0

@@ -22,10 +22,14 @@ final class ResultAlertPresenter: AlertPresenterProtocol {
             message: alertModel.message,
             preferredStyle: .alert)
         
-        let action = UIAlertAction(title: alertModel.buttonText, style: .default) { _ in alertModel.completion()}
+        let action = UIAlertAction(title: alertModel.buttonText, style: .default) { [weak self] _ in
+            guard let self = self else {return}
+            alertModel.completion()
+            
+        }
         
         alert.addAction(action)
-        self.viewController?.present(alert, animated: true)
+        viewController?.present(alert, animated: true)
     }
 }
 

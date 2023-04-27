@@ -8,7 +8,8 @@
 import Foundation
 
 protocol StatisticService {
-    
+    var correct:Int { get }
+    var total: Int { get }
     var totalAccuracy: Double { get }
     var gamesCount: Int { get }
     var bestGame: GameRecord { get }
@@ -27,8 +28,7 @@ extension GameRecord: Comparable {
 final class StatisticServiceImplementation: StatisticService {
     
     private let userDefaults = UserDefaults.standard
-    private var accuracyTotal:Double = 0
-    private var countGame:Int = 0
+    
     
     private enum Keys: String {
         case correct, total, bestGame, gamesCount
@@ -36,34 +36,49 @@ final class StatisticServiceImplementation: StatisticService {
     
     func store(correct count: Int, total amount: Int) {
         
-        let accuracyGame = Double(count) / Double(amount) * 100
-        
-        totalAccuracy = (Double(gamesCount) * totalAccuracy + accuracyGame) / Double(gamesCount + 1)
-        
+        correct += count
         gamesCount += 1
-        
-        let newRecord = GameRecord(correct: count, total: amount, date: Date())
-        
-        if bestGame < newRecord {
-            bestGame = newRecord
+        total += amount
+        let newGame = GameRecord(correct: count, total: amount, date: Date())
+        if newGame.correct > bestGame.correct {
+            bestGame = newGame
         }
     }
     
-    var totalAccuracy: Double {
+    var correct: Int {
         get {
-            return self.accuracyTotal
+            userDefaults.integer(forKey: Keys.correct.rawValue)
         }
         set {
-            self.accuracyTotal = newValue
+            userDefaults.set(newValue, forKey: Keys.correct.rawValue)
         }
     }
     
-    var gamesCount: Int {
+    var total: Int {
         get {
-            return self.countGame
+            userDefaults.integer(forKey: Keys.total.rawValue)
         }
         set {
-            self.countGame = newValue
+            userDefaults.set(newValue, forKey: Keys.total.rawValue)
+        }
+        
+    }
+    
+    var totalAccuracy:Double {
+        get {
+            if userDefaults.double(forKey: Keys.total.rawValue) == 0 {
+                return 0
+            }
+            return userDefaults.double(forKey: Keys.correct.rawValue) / userDefaults.double(forKey: Keys.total.rawValue) * 100
+        }
+    }
+    
+    var gamesCount:  Int {
+        get {
+            userDefaults.integer(forKey: Keys.gamesCount.rawValue)
+        }
+        set {
+            userDefaults.set(newValue, forKey: Keys.gamesCount.rawValue)
         }
     }
     
