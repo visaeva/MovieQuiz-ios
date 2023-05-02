@@ -29,7 +29,7 @@ final class ResultAlertPresenter: AlertPresenterProtocol {
         }
         
         alert.addAction(action)
-        viewController?.present(alert, animated: true)
+        self.viewController?.present(alert, animated: true)
     }
 }
 
