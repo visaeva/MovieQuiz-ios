@@ -10,3 +10,4 @@ extension UIColor {
     static var ypWhite: UIColor { UIColor(named: "YP White") ?? UIColor.white}
 }
 
+
