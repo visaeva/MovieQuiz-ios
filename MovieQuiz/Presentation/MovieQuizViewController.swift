@@ -13,7 +13,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     @IBOutlet private weak var yesClickedButton: UIButton!
     
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
@@ -32,7 +32,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         
-        showLoadingIndicator()
+        
+        activityIndicator.startAnimating()
+        activityIndicator.hidesWhenStopped = true
         
         questionFactory?.loadData()
         
@@ -62,6 +64,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - QuestionFactoryDelegate
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
+        
         guard let question = question else {
             return
         }
@@ -71,6 +74,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
+            self?.activityIndicator.stopAnimating()
         }
     }
     
@@ -88,6 +92,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func showNextQuestionOrResults() {
+        activityIndicator.startAnimating()
         
         if currentQuestionIndex == questionsAmount - 1 {
             statisticService.store(correct: correctAnswers, total: questionsAmount)
@@ -143,36 +148,24 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 self.noClickedButton.isEnabled = true
                 self.showNextQuestionOrResults()
             }
-            
         }
-        
-    }
-    private func showLoadingIndicator() {
-        activityIndicator.isHidden = false
-        activityIndicator.startAnimating()
-    }
-    
-    private func hideLoadingIndicator() {
-        activityIndicator.isHidden = true
-        activityIndicator.startAnimating()
     }
     
     private func showNetworkError(message: String) {
-        hideLoadingIndicator()
-        
+        activityIndicator.stopAnimating()
         let viewModel = AlertModel(title: "Ошибка", message: message, buttonText: "Попробовать еще раз") { [weak self] in
             guard let self = self else {return}
             
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
             
-            self.questionFactory?.requestNextQuestion()
+            self.questionFactory?.loadData()
         }
         alertPresenter?.show(alertModel: viewModel)
     }
     
     func didLoadDataFromServer() {
-        activityIndicator.isHidden = true
+        activityIndicator.startAnimating()
         questionFactory?.requestNextQuestion()
     }
     

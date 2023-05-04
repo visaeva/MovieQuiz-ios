@@ -45,6 +45,11 @@ class QuestionFactory: QuestionFactoryProtocol {
                 imageData = try Data(contentsOf: movie.resizedImageURL)
             } catch {
                 print("Failed to load image")
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    imageData = Data()
+                    self.delegate?.didFailToLoadData(with: error)
+                }
             }
             
             let rating = Float(movie.rating) ?? 0
@@ -58,53 +63,9 @@ class QuestionFactory: QuestionFactoryProtocol {
             
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
-                self.delegate?.didReceiveNextQuestion(question: question) //тут поставила ?
+                self.delegate?.didReceiveNextQuestion(question: question)
             }
         }
     }
-    
-    /* public let questions: [QuizQuestion] = [
-     QuizQuestion(
-     image: "The Godfather",
-     text: "Рейтинг этого фильма больше чем 6?",
-     correctAnswer: true),
-     QuizQuestion(
-     image: "The Dark Knight",
-     text: "Рейтинг этого фильма больше чем 6?",
-     correctAnswer: true),
-     QuizQuestion(
-     image: "Kill Bill",
-     text: "Рейтинг этого фильма больше чем 6?",
-     correctAnswer: true),
-     QuizQuestion(
-     image: "The Avengers",
-     text: "Рейтинг этого фильма больше чем 6?",
-     correctAnswer: true),
-     QuizQuestion(
-     image: "Deadpool",
-     text: "Рейтинг этого фильма больше чем 6?",
-     correctAnswer: true),
-     QuizQuestion(
-     image: "The Green Knight",
-     text: "Рейтинг этого фильма больше чем 6?",
-     correctAnswer: true),
-     QuizQuestion(
-     image: "Old",
-     text: "Рейтинг этого фильма больше чем 6?",
-     correctAnswer: false),
-     QuizQuestion(
-     image: "The Ice Age Adventures of Buck Wild",
-     text: "Рейтинг этого фильма больше чем 6?",
-     correctAnswer: false),
-     QuizQuestion(
-     image: "Tesla",
-     text: "Рейтинг этого фильма больше чем 6?",
-     correctAnswer: false),
-     QuizQuestion(
-     image: "Vivarium",
-     text: "Рейтинг этого фильма больше чем 6?",
-     correctAnswer: false)
-     ]
-     */
 }
 
