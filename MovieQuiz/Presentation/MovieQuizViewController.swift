@@ -16,13 +16,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     private let presenter = MovieQuizPresenter()
-   // private var currentQuestionIndex = 0
+   
     private var correctAnswers = 0
-   // private let questionsAmount: Int = 10
-    
+ 
     private var questionFactory: QuestionFactoryProtocol?
-    private var currentQuestion: QuizQuestion?
+  
     private var statisticService: StatisticService = StatisticServiceImplementation()
+    
     private var alertPresenter: AlertPresenterProtocol?
     
     override func viewDidLoad() {
@@ -42,35 +42,31 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         statisticService = StatisticServiceImplementation()
         
         alertPresenter = ResultAlertPresenter(viewController: self)
+        
+        presenter.viewController = self
+       
     }
     
-    @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        let givenAnswer = true
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+  @IBAction private func yesButtonClicked(_ sender: UIButton) {
+     
+      presenter.yesButtonClicked()
     }
     
     
-    @IBAction private func noButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        let givenAnswer = false
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+  @IBAction private func noButtonClicked(_ sender: UIButton) {
+   
+      presenter.noButtonClicked()
     }
     
     
     // MARK: - QuestionFactoryDelegate
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        
+        presenter.currentQuestion = question
         guard let question = question else {
             return
         }
         
-        currentQuestion = question
         let viewModel = presenter.convert(model: question)
         
         DispatchQueue.main.async { [weak self] in
@@ -116,7 +112,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
     
-    private func showAnswerResult(isCorrect: Bool) {
+     func showAnswerResult(isCorrect: Bool) {
         yesClickedButton.isEnabled = false
         noClickedButton.isEnabled = false
         
