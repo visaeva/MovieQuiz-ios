@@ -1,12 +1,12 @@
 //
-//  MovieQuizUITests.swift
-//  MovieQuizUITests
+//  MovieQuizUITests1.swift
+//  MovieQuizUITests1
 //
-//  Created by Victoria Isaeva on 05.05.2023.
+//  Created by Victoria Isaeva on 17.05.2023.
 //
+
 
 import XCTest
-
 
 final class MovieQuizUITests: XCTestCase {
     var app: XCUIApplication!
@@ -24,48 +24,37 @@ final class MovieQuizUITests: XCTestCase {
     override func tearDownWithError() throws {
         try super.tearDownWithError()
         
-        app?.terminate()
+        app.terminate()
         app = nil
     }
     
-    /*
+    
     func testExample() throws {
-        
+        let app = XCUIApplication()
+        //  app.launch()
     }
     
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        measure {
-            // Put the code you want to measure the time of here.
-        }
-    }*/
-  /*  func testScreenCast() throws {
-        
-    }*/
     func testYesButton() {
         sleep(3)
         
         let firstPoster = app.images["Poster"]
         let firstPosterData = firstPoster.screenshot().pngRepresentation
-       app.buttons["Yes"].tap()
         
+        app.buttons["Yes"].tap()
         sleep(3)
+        
         let secondPoster = app.images["Poster"]
-        let secondPosterData = secondPoster.screenshot().pngRepresentation
-       
+        let secondPosterData = secondPoster.screenshot ().pngRepresentation
+        let indexLabel = app.staticTexts[ "Index"]
         
-        let indexLabel = app.staticTexts["Index"]
-      //  indexLabel.label
-        
+        XCTAssertEqual(indexLabel.label,"2/10")
         XCTAssertNotEqual(firstPosterData, secondPosterData)
-        XCTAssertEqual(indexLabel.label, "2/10")
     }
     
     func testNoButton() {
         sleep(3)
         let firstPoster = app.images["Poster"]
         let firstPosterData = firstPoster.screenshot().pngRepresentation
-        
         app.buttons["No"].tap()
         sleep(3)
         
@@ -76,8 +65,8 @@ final class MovieQuizUITests: XCTestCase {
         
         XCTAssertNotEqual(firstPosterData, secondPosterData)
         XCTAssertEqual(indexLabel.label, "2/10")
-        
     }
+    
     func testGameFinish() {
         sleep(3)
         
@@ -86,25 +75,24 @@ final class MovieQuizUITests: XCTestCase {
             sleep(3)
         }
         let alert = app.alerts["Game results"]
-        
         XCTAssertTrue(alert.exists)
         XCTAssertTrue(alert.label == "Этот раунд окончен!")
-        XCTAssertTrue(alert.buttons.firstMatch.label == "Сыграть еще раз")
+        XCTAssertTrue(alert.buttons.firstMatch.label == "Сыграть ещё раз")
     }
     func testAlertDismiss() {
-        sleep(3)
+        sleep(6)
         for _ in 1...10 {
             app.buttons["No"].tap()
             
-            sleep(3)
+            sleep(6)
         }
         let alert = app.alerts["Game results"]
         alert.buttons.firstMatch.tap()
-            let indexLabel = app.staticTexts["Index"]
-            
-            XCTAssertFalse(alert.exists)
-            
-            XCTAssertTrue(indexLabel.label == "1/10")
+        
+        let indexLabel = app.staticTexts["Index"]
+        
+        XCTAssertFalse(alert.exists)
+        XCTAssertTrue(indexLabel.label == "1/10")
         
     }
 }
