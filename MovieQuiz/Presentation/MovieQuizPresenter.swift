@@ -32,14 +32,15 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private let questionsAmount: Int = 10
     
     
-    init(viewController:MovieQuizViewControllerProtocol) {
+    init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
         
         statisticService = StatisticServiceImplementation()
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
-        questionFactory?.loadData()
         self.viewController?.showLoadingIndicator()
+        questionFactory?.loadData()
+        
     }
     
     //MARK: - QuestionFactoryDelegate
@@ -68,6 +69,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             self?.viewController?.hideLoadingIndicator()
         }
     }
+    
     func isLastQuestion() -> Bool {
         currentQuestionIndex == questionsAmount - 1
     }
@@ -126,7 +128,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     private func proceedToNextQuestionOrResults() {
-        if self.isLastQuestion() {
+        if isLastQuestion() {
             let text = correctAnswers == self.questionsAmount ?
             "Поздравляем, вы ответили на 10 из 10!" :
             "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"
@@ -140,7 +142,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
                 title: viewModel.title,
                 message: viewModel.text,
                 buttonText: viewModel.buttonText,
-                completion: { [weak self] in
+                completion: { [ weak self ] in
                     self?.restartGame()
                 })
             viewController?.show(alertModel: alertModel)
@@ -149,6 +151,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             questionFactory?.requestNextQuestion()
         }
     }
+    
     func makeResultsMessage() -> String {
         statisticService.store(correct: correctAnswers, total: questionsAmount)
         
@@ -164,6 +167,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
         return resultMessage
     }
+    
 }
 
 

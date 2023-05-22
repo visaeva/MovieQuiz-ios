@@ -10,10 +10,8 @@ import UIKit
 
 final class AlertPresenter: AlertPresenterProtocol {
     private weak var viewController: UIViewController?
-    private var presenter: MovieQuizPresenter
-    init(viewController: UIViewController?, presenter: MovieQuizPresenter) {
+    init(viewController: UIViewController?) {
         self.viewController = viewController
-        self.presenter = presenter
     }
     
     func show(alertModel: AlertModel) {
@@ -23,16 +21,14 @@ final class AlertPresenter: AlertPresenterProtocol {
             message: alertModel.message,
             preferredStyle: .alert)
         
-        let action = UIAlertAction(title: alertModel.buttonText, style: .default) { [weak self] _ in
-            guard let self = self else {return}
-            alertModel.completion()
+        let action = UIAlertAction(title: alertModel.buttonText, style: .default) { [ weak self ] _ in
+            guard let self else { return }
             
-            self.presenter.restartGame()
+            alertModel.completion()
         }
         
         alert.addAction(action)
         viewController?.present(alert, animated: true)
-        
     }
 }
 

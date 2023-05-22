@@ -23,9 +23,8 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
         super.viewDidLoad()
         imageView.layer.cornerRadius = 20
         imageView.layer.masksToBounds = true
-        presenter = MovieQuizPresenter(viewController:self)
-        showLoadingIndicator()
-        alertPresenter = AlertPresenter(viewController:self, presenter: presenter)
+        presenter = MovieQuizPresenter(viewController: self)
+        alertPresenter = AlertPresenter(viewController: self)
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
@@ -53,8 +52,8 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
             message: message,
             preferredStyle: .alert)
         
-        let action = UIAlertAction(title: alertModel.buttonText, style: .default) { [weak self] _ in
-            guard let self = self else {return}
+        let action = UIAlertAction(title: alertModel.buttonText, style: .default) { [ weak self ] _ in
+            guard let self = self else { return }
             alertModel.completion()
             
             self.presenter.restartGame()
@@ -85,16 +84,14 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     }
     
     func showNetworkError(message: String) {
-        hideLoadingIndicator()
-        
         let alertModel = AlertModel(
-                                    title: "Ошибка",
-                                    message: message,
-                                    buttonText: "Попробовать еще раз") { [weak self] in
-            guard let self = self else {return}
-            
-            self.presenter.restartGame()
-        }
+            title: "Ошибка",
+            message: message,
+            buttonText: "Попробовать еще раз") { [ weak self ] in
+                guard let self else { return }
+                self.presenter.didLoadDataFromServer() //попытка загрузить изобр-е еще раз
+                //self.presenter.restartGame()
+            }
         alertPresenter?.show(alertModel: alertModel)
     }
     
