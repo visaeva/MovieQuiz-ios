@@ -18,9 +18,9 @@ class QuestionFactory: QuestionFactoryProtocol {
     }
     
     func loadData() {
-        moviesLoader.loadMovies { [weak self] result in
+        moviesLoader.loadMovies { [ weak self ] result in
             DispatchQueue.main.async {
-                guard let self = self else {return}
+                guard let self = self else { return }
                 switch result {
                 case .success(let mostPopularMovies):
                     self.movies = mostPopularMovies.items
@@ -33,11 +33,11 @@ class QuestionFactory: QuestionFactoryProtocol {
     }
     
     func requestNextQuestion() {
-        DispatchQueue.global().async { [weak self] in
+        DispatchQueue.global().async { [ weak self ] in
             guard let self = self else { return }
             let index = (0..<self.movies.count).randomElement() ?? 0
             
-            guard let movie = self.movies[safe: index] else { return }
+            guard let movie = self.movies[ safe: index ] else { return }
             
             var imageData = Data()
             
@@ -45,7 +45,7 @@ class QuestionFactory: QuestionFactoryProtocol {
                 imageData = try Data(contentsOf: movie.resizedImageURL)
             } catch {
                 print("Failed to load image")
-                DispatchQueue.main.async { [weak self] in
+                DispatchQueue.main.async { [ weak self ] in
                     guard let self = self else { return }
                     imageData = Data()
                     self.delegate?.didFailToLoadData(with: error)
@@ -61,7 +61,7 @@ class QuestionFactory: QuestionFactoryProtocol {
                                         text: text,
                                         correctAnswer: correctAnswer)
             
-            DispatchQueue.main.async { [weak self] in
+            DispatchQueue.main.async { [ weak self ] in
                 guard let self = self else { return }
                 self.delegate?.didReceiveNextQuestion(question: question)
             }

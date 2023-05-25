@@ -10,7 +10,7 @@ import UIKit
 
 final class AlertPresenter: AlertPresenterProtocol {
     private weak var viewController: UIViewController?
-    init(viewController: UIViewController?) {
+    init(viewController: UIViewController) {
         self.viewController = viewController
     }
     
@@ -24,11 +24,12 @@ final class AlertPresenter: AlertPresenterProtocol {
         let action = UIAlertAction(title: alertModel.buttonText, style: .default) { [ weak self ] _ in
             guard let self else { return }
             
-            alertModel.completion()
+            alertModel.completion?()
         }
         
         alert.addAction(action)
         viewController?.present(alert, animated: true)
+        alert.view.accessibilityIdentifier = "Game results"
     }
 }
 

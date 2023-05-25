@@ -18,10 +18,11 @@ protocol MovieQuizViewControllerProtocol: AnyObject {
     func hideLoadingIndicator()
     
     func showNetworkError(message: String)
+    
+    func setButtonsEnabled(_ isEnabled: Bool)
 }
 
 final class MovieQuizPresenter: QuestionFactoryDelegate {
-    
     private let statisticService: StatisticService!
     private var questionFactory: QuestionFactoryProtocol?
     private weak var viewController: MovieQuizViewControllerProtocol?
@@ -64,7 +65,8 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
         let viewModel = convert(model: question)
         
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.main.async { [ weak self ] in
+            self?.viewController?.setButtonsEnabled(true)
             self?.viewController?.show(quiz: viewModel)
             self?.viewController?.hideLoadingIndicator()
         }
@@ -78,6 +80,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         if isCorrectAnswer {
             correctAnswers += 1
         }
+        setButtonsEnabled(false)
     }
     
     func restartGame() {
@@ -88,6 +91,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     func switchToNextQuestion() {
         currentQuestionIndex += 1
+        setButtonsEnabled(true)
         self.viewController?.showLoadingIndicator()
     }
     
@@ -106,11 +110,14 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         didAnswer(isYes: false)
     }
     
+    func setButtonsEnabled(_ isEnabled: Bool) {
+        viewController?.setButtonsEnabled(isEnabled)
+    }
+    
     private func didAnswer(isYes: Bool) {
         guard let currentQuestion = currentQuestion else {
             return
         }
-        
         let givenAnswer = isYes
         
         proceedWithAnswer(isCorrect: givenAnswer == currentQuestion.correctAnswer)
@@ -133,9 +140,11 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             "Поздравляем, вы ответили на 10 из 10!" :
             "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"
             
+            let message = makeResultsMessage()
+            
             let viewModel = QuizResultsViewModel(
                 title: "Этот раунд окончен!",
-                text: text,
+                text: makeResultsMessage(),
                 buttonText: "Сыграть ещё раз")
             
             let alertModel = AlertModel(
@@ -152,7 +161,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
     
-    func makeResultsMessage() -> String {
+    private func makeResultsMessage() -> String {
         statisticService.store(correct: correctAnswers, total: questionsAmount)
         
         let bestGame = statisticService.bestGame
@@ -166,6 +175,17 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         let resultMessage = [currentGameResultLine, totalPlaysCountLine, bestGameInfoLine, averageAccuracyLine].joined(separator: "\n")
         
         return resultMessage
+    }
+    
+    func showNetworkError(message: String) {
+        let alertModel = AlertModel(
+            title: "Ошибка",
+            message: message,
+            buttonText: "Попробовать еще раз") { [ weak self ] in
+                guard let self else { return }
+                didLoadDataFromServer()
+            }
+        viewController?.show(alertModel: alertModel)
     }
     
 }

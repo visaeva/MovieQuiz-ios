@@ -10,6 +10,11 @@ import XCTest
 @testable import MovieQuiz
 
 final class MovieQuizViewControllerMock: MovieQuizViewControllerProtocol {
+    
+    func setButtonsEnabled(_ isEnabled: Bool) {
+        
+    }
+    
     func show(quiz step: QuizStepViewModel) {
         
     }
